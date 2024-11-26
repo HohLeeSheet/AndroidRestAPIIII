@@ -17,7 +17,7 @@ var config = require("../utill/tokenConfig");
 //localhost:3000/users/all
 //lay danh sach user
 router.get("/all", async function(req, res){
-  var list = await userModel.find({},"username age"); //"noi dung ma minh muon lay"
+  var list = await userModel.find(); //"noi dung ma minh muon lay"
   res.json(list);
 });
 
