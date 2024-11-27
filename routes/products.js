@@ -19,7 +19,7 @@ router.get("/all", async function (req, res) {
             if (err) {
                 res.status(403).json({ "status": 403, "err": err });
             } else {
-                var list = await productModel.find().populate("users");
+                var list = await productModel.find().populate("user");
                 res.json(list);
             }
         });
