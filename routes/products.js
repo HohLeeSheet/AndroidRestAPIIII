@@ -20,7 +20,7 @@ router.get("/all", async function (req, res) {
                 res.status(403).json({ "status": 403, "err": err });
             } else {
                 var list = await productModel.find().populate("user");
-                res.json(list);
+                res.status(200).json({status: true, message:"thanh cong", data:list});
             }
         });
     } else {
