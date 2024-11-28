@@ -15,12 +15,25 @@ const sendMail = require("../utill/mailConfig");
 // 1. Lấy toàn bộ danh sách sinh viên
 // localhost:3000/sinhviens/all
 router.get("/all", async function (req, res) {
-    try {
-        var list = await sinhVienModel.find();
-        res.status(200).json({ status: true, message: "Thành công", data: list });
-    } catch (error) {
-        res.status(400).json({ status: false, message: "Có lỗi xảy ra" });
+    const token = req.header("Authorization").split(' ')[1];
+    if (token) {
+        JWT.verify(token, config.SECRETKEY, async function (err, id) {
+            if (err) {
+                res.status(403).json({ "status": 403, "err": err });
+            } else {
+                var list = await sinhVienModel.find();
+                res.status(200).json({status: true, message:"thanh cong", data:list});
+            }
+        });
+    } else {
+        res.status(401).json({ "status": 401 });
     }
+    // try {
+    //     var list = await sinhVienModel.find();
+    //     res.status(200).json({ status: true, message: "Thành công", data: list });
+    // } catch (error) {
+    //     res.status(400).json({ status: false, message: "Có lỗi xảy ra" });
+    // }
 
 });
 
