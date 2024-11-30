@@ -166,7 +166,7 @@ router.get("/all", async function (req, res) {
         res.status(403).json({ "status": 403, "err": err });
       } else {
         var list = await userModel.find()
-        res.json(list);ử lý chức năng tương ứng với API
+        res.json(list);
       }
     });
   } else {
