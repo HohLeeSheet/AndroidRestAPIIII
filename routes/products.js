@@ -20,7 +20,7 @@ router.get("/all", async function (req, res) {
                 res.status(403).json({ "status": 403, "err": err });
             } else {
                 var list = await productModel.find().populate("user");
-                res.status(200).json({status: true, message:"thanh cong", data:list});
+                res.status(200).json({ status: true, message: "thanh cong", data: list });
             }
         });
     } else {
@@ -41,16 +41,7 @@ router.get("/get-ds-so-luong-lon-hon-20", async function (req, res) {
 });
 
 // thêm (post)
-router.post("/add", async function (req, res) {
-    try {
-        const { masp, tensp, gia, soluong } = req.body;
-        const newItem = { masp, tensp, gia, soluong }; // có thể bắt validate bằng if else 
-        await productModel.create(newItem);
-        res.status(200).json({ status: true, message: "Successfully added" });
-    } catch (e) {
-        res.status(400).json({ status: false, message: "Có lỗi xảy ra" });
-    }
-});
+
 
 
 // sửa (put)
@@ -75,15 +66,7 @@ router.put("/edit", async function (req, res) {
 });
 
 // xóa (delete)
-router.delete("/delete/:id", async function (req, res) {
-    try {
-        const { id } = req.params;
-        await productModel.findByIdAndDelete(id);
-        res.status(200).json({ status: true, message: "Successfully delete" });
-    } catch (e) {
-        res.status(400).json({ status: false, message: "Có lỗi xảy ra" });
-    }
-});
+
 
 
 router.post('/upload', [upload.single('image')],
@@ -123,4 +106,103 @@ router.post('/uploads', [upload.array('image', 9)],
         }
     });
 
+
+
+// asm 2
+router.get("/get-ds-so-luong-nho-hon-20", async function (req, res) {
+    const token = req.header("Authorization").split(' ')[1];
+    if (token) {
+        JWT.verify(token, config.SECRETKEY, async function (err, id) {
+            if (err) {
+                res.status(403).json({ "status": 403, "err": err });
+            } else {
+                try {
+                    const { count } = req.query;
+                    var detail = await productModel.find({ soluong: { $lt: count } });
+                    res.status(200).json(detail);
+                } catch (error) {
+                    res.status(400).json({ status: false, message: "ko tim dc" });
+                }
+            }
+        });
+    } else {
+        res.status(401).json({ "status": 401 });
+    }
+});
+
+router.post("/add", async function (req, res) {
+    const token = req.header("Authorization").split(' ')[1];
+  if(token){
+    JWT.verify(token, config.SECRETKEY, async function (err, id){
+      if(err){
+        res.status(403).json({"status": 403, "err": err});
+      }else{
+        try {
+            const { masp, tensp, gia, soluong } = req.body;
+            const newItem = { masp, tensp, gia, soluong };
+            await productModel.create(newItem);
+            res.status(200).json({ status: true, message: "Successfully added" });
+        } catch (e) {
+            res.status(400).json({ status: false, message: "Có lỗi xảy ra" });
+        }
+      }
+    });
+  }else{
+    res.status(401).json({"status": 401});
+  }
+    
+});
+
+router.put("/edit", async function (req, res) {
+    const token = req.header("Authorization").split(' ')[1];
+  if(token){
+    JWT.verify(token, config.SECRETKEY, async function (err, id){
+      if(err){
+        res.status(403).json({"status": 403, "err": err});
+      }else{
+        try {
+            const id = {id, newGia, newMasp, newSoluong, newTensp} = req.body;
+            var productUpdate = await productModel.findById(id);
+            if(productUpdate){
+                productUpdate.gia = newGia ? newGia:productUpdate.gia;
+                productUpdate.masp = newMasp ? newMasp:productUpdate.masp;
+                productUpdate.soluong = newSoluong ? newSoluong:productUpdate.soluong;
+                productModel.tensp = newTensp ? newTensp:productUpdate.tensp;
+                await productUpdate.save();
+                res.status(200).json({status: true, message:"update thanh cong"});
+            }else{
+                res.status(400).json({status: false, message:"ko tim thay san pham"});
+            }
+        } catch (error) {
+            res.status(400).json({status: false, message:"update that bai"});
+        }
+      }
+    });
+  }else{
+    res.status(401).json({"status": 401});
+  }
+});
+
+
+router.delete("/delete/:id", async function (req, res) {
+    const token = req.header("Authorization").split(' ')[1];
+  if(token){
+    JWT.verify(token, config.SECRETKEY, async function (err, id){
+      if(err){
+        res.status(403).json({"status": 403, "err": err});
+      }else{
+        try {
+        const { id } = req.params;
+        await productModel.findByIdAndDelete(id);
+        res.status(200).json({ status: true, message: "Successfully delete" });
+    } catch (e) {
+        res.status(400).json({ status: false, message: "Có lỗi xảy ra" });
+    }
+      }
+    });
+  }else{
+    res.status(401).json({"status": 401});
+  }
+    
+});
 module.exports = router;
